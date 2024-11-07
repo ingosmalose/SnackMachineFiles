@@ -3,6 +3,9 @@ package springmicroservice.snackmachinefiles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import springmicroservice.model.Snack;
+import springmicroservice.service.IServiceSnack;
+import springmicroservice.service.ServiceSnackFiles;
 
 public class SnackMachine {
 
@@ -15,11 +18,15 @@ public class SnackMachine {
         var read = new Scanner(System.in);
         List<Snack> products = new ArrayList<>();
         System.out.println("Developed by Oscar Lopez");
-        Snacks.ShowSnacks();
+        //IServiceSnack serviceSnacks = new ServiceSnacks();
+        IServiceSnack serviceSnacks = new ServiceSnackFiles();
+        
+
+        serviceSnacks.ShowSnacks();
         while (!exit) {
             try {
                 var option = showMenu(read);
-                exit = executeOption(option, read, products);
+                exit = executeOption(option, read, products, serviceSnacks);
             } catch (Exception e) {
                 System.out.println("ERROR : " + e.getMessage());
             } finally {
@@ -39,15 +46,15 @@ public class SnackMachine {
         return Integer.parseInt(console.nextLine());
     }
 
-    private static boolean executeOption(int option, Scanner read, List<Snack> products) {
+    private static boolean executeOption(int option, Scanner read, List<Snack> products, IServiceSnack serviceSnacks) {
         var exit = false;
         switch (option) {
             case 1 ->
-                BuySnack(read, products);
+                BuySnack(read, products, serviceSnacks);
             case 2 ->
                 ShowTicket(products);
             case 3 ->
-                AddSnack(read);
+                AddSnack(read, serviceSnacks);
             case 4 ->
                 exit = exit();
             //break;
@@ -55,11 +62,11 @@ public class SnackMachine {
         return exit;
     }
 
-    private static void BuySnack(Scanner read, List<Snack> products) {
+    private static void BuySnack(Scanner read, List<Snack> products, IServiceSnack serviceSnacks) {
         System.out.println("What snack would you like to buy, tipe [id]?");
         var idSnack = Integer.parseInt(read.nextLine());
         var snackFind = false;
-        for (var snack : Snacks.GetSnack()) {
+        for (var snack : serviceSnacks.GetSnack()) {
             if (idSnack == snack.getIdSnack()) {
                 products.add(snack);
                 System.out.println("Snack added");
@@ -67,20 +74,19 @@ public class SnackMachine {
                 break;
             }
         }
-
         if (!snackFind) {
             System.out.println("Id snack selected is not in our information. ID TYPED : " + idSnack);
         }
     }
 
-    private static void AddSnack(Scanner console) {
+    private static void AddSnack(Scanner console, IServiceSnack serviceSnacks) {
         System.out.print("Name snack : ");
         var name = console.nextLine();
         System.out.print("Price snack $ ");
         var price = Double.parseDouble(console.nextLine());
-        Snacks.AddSnack(new Snack(name, price));
+        serviceSnacks.AddSnack(new Snack(name, price));
         System.out.println("Snack created succesfully.\n");
-        Snacks.ShowSnacks();
+        serviceSnacks.ShowSnacks();
 
     }
 
